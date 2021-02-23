@@ -292,11 +292,16 @@ if __name__ == "__main__":
 #     insert_contract(ret[0],ret[1],ret[2])
 #     update_contract_to_mysql("A8888.XDCE","A8888")    
 #     main()
-    maincontract = MyContract() 
+    maincontract = MyContract()
     list = maincontract.getMyContract()
     print (list)
     for item in list:
+        ret= check_mycontract(item['InstrumentID'],item['ExchangeID'])
+        insert_contract(ret[2][0],ret[2][1],ret[2][2])
+    for item in list:
         ret= check_mycontract(item['InstrumentID_next'],item['ExchangeID'])
         insert_contract(ret[2][0],ret[2][1],ret[2][2])
+        insert_contract(ret[2][0],ret[2][1],ret[2][2])
+
     
 
