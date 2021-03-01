@@ -45,7 +45,6 @@ def showAllFuture():
 
 def update_contract_to_mysql(contract,name):
     print("start update ------>%s"%(contract))
-#     auth('18630881826','Anran881826')
     current_date = time.strftime("%Y-%m-%d", time.localtime()) 
 #     df =  get_all_securities(['futures'],date=current_date)
 #     for index, row in df.iterrows():
@@ -91,7 +90,6 @@ def update_contract_to_mysql(contract,name):
 
 def check(contract):
     print("start update ------>%s"%(contract))
-#     auth('18630881826','Anran881826')
     current_date = time.strftime("%Y-%m-%d", time.localtime()) 
 #     df =  get_all_securities(['futures'],date=current_date)
 #     for index, row in df.iterrows():
@@ -144,7 +142,6 @@ def check_mycontract(name,exchangeid):
         
     contract = my_name.upper()+exchange[exchangeid]
     print("start update %s------>%s"%(my_name,contract))
-#     auth('18630881826','Anran881826')
     current_date = time.strftime("%Y-%m-%d", time.localtime()) 
 #     df =  get_all_securities(['futures'],date=current_date)
 #     for index, row in df.iterrows():
@@ -160,6 +157,8 @@ def check_mycontract(name,exchangeid):
     df = get_price(contract,start_date=s_date, end_date=current_date, frequency='daily',fields=['open', 'high','low','close','volume','money','pre_close'])
 #     print (df)    
 
+    df["last_close"]=df['close'].shift(1)
+    print (df)    
     df1 = get_extras('futures_sett_price', contract,start_date=s_date, end_date=current_date)
 #     print (df1)
     df1.dropna(axis=0, how='any')
@@ -177,7 +176,7 @@ def check_mycontract(name,exchangeid):
      
     last_df = mydf.dropna(axis=0,how='any')
      
-#     print (last_df)
+    print (last_df)
     ret = contract,name,last_df 
     return True,"",ret
 
@@ -219,7 +218,7 @@ def insert_contract(contract,name,df):
 #     df.insert(0, 'date', pandas_index) 
 #     print (df)
 
-
+ 
     for index,r in df.iterrows():
 #         print(index,r["open"])
 
@@ -228,6 +227,7 @@ def insert_contract(contract,name,df):
                       High=r['high'],
                       Low=r['low'],
                       Close=r['close'],
+                      LastClose=r['last_close'],
                       PreSettlementPrice=r['pre_close'],
                       SettlementPrice=r['sett_price'],
                       OpenInterest=r['opi'],
@@ -291,10 +291,15 @@ if __name__ == "__main__":
 #     ret=check("A8888.XDCE" )
 #     insert_contract(ret[0],ret[1],ret[2])
 #     update_contract_to_mysql("A8888.XDCE","A8888")    
-#     main()
+#    main()
+
+
     maincontract = MyContract() 
     list = maincontract.getMyContract()
     print (list)
+    for item in list:
+        ret= check_mycontract(item['InstrumentID'],item['ExchangeID'])
+        insert_contract(ret[2][0],ret[2][1],ret[2][2])
     for item in list:
         ret= check_mycontract(item['InstrumentID_next'],item['ExchangeID'])
         insert_contract(ret[2][0],ret[2][1],ret[2][2])
